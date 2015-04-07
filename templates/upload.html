@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head lang="pl">
+    <meta charset="UTF-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <title>PDF Anonimizer</title>
+</head>
+<body>
+    <div class="container">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="col-md-10 col-md-offset-1 alert alert-{% if category=='message' %}warning{% else %}{{ category }}{% endif %}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="col-md-10 col-md-offset-1 jumbotron">
+            {% block content %}
+            <h1>Anonimizacja plików .pdf</h1>
+            <p class="lead">Załaduj plik .pdf przez formularz, by usunąć metadane</p>
+            <form method="POST" enctype=multipart/form-data>
+                <div class="form-group">
+                    <label for="input-file_1">Plik .pdf</label>
+                    <input type="file" name="file_1" id="input-file_1" />
+                </div>
+                <div class="form-group">
+                    <label for="filename_1">Nazwa pliku wyjściowego (opcjonalne)</label>
+                    <input type="text" class="form-control" id="filename_1" name="filename_1" />
+                </div>
+                <button type="submit" class="btn btn-success">Załaduj</button>
+            </form>
+            {% endblock %}
+        </div>
+    </div>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</body>
+</html>

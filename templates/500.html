@@ -1,0 +1,9 @@
+{% extends "upload.html" %}
+
+{% block content %}
+<h1 class="page-header">Błąd serwera</h1>
+<p class="lead">
+    Nieoczekiwany błąd. Jeżeli pod tym adresem szukałeś pliku .pdf, to został on już skasowany.
+</p>
+<a href="{{ url_for('upload_file') }}">Na Twoim miejscu zawróciłbym na stronę główną</a>
+{% endblock %}
