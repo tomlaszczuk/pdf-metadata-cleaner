@@ -76,7 +76,10 @@ def upload_file():
 
 
 @app.route('/uploads/<path:filename>')
-def download(filename):
+def show_file(filename):
+    u"""
+    View for showing uploaded file. Not in use for now.
+    """
     uploads = app.config['UPLOAD_FOLDER']
     return send_from_directory(directory=uploads, filename=filename)
 
