@@ -98,6 +98,8 @@ def upload_file():
                 zip_arch.write(os.path.join(app.config['UPLOAD_FOLDER'],
                                             uploaded_file.filename),
                                arcname=uploaded_file.filename)
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'],
+                                       uploaded_file.filename))
             zip_arch.close()
             return redirect(url_for('download_file_from_uploads',
                                     filename=arch_name))
@@ -142,4 +144,4 @@ def server_error(e):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
