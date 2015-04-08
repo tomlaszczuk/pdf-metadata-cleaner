@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, redirect, render_template, flash, url_for, \
-    send_from_directory, current_app, make_response
+    send_from_directory, make_response
 from werkzeug import secure_filename
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -57,12 +57,13 @@ def upload_file():
     if request.method == 'POST':
         file_ = request.files['file_1']
         if file_ and allowed_file(file_.filename):
-            filename = request.form.get('filename_1') or \
-                secure_filename(file_.filename)
-            filename = assure_that_filename_is_pdf(filename)
+            if request.form.get('filename_1'):
+                filename = secure_filename(request.form['filename_1'])
+                filename = assure_that_filename_is_pdf(filename)
+            else:
+                filename = secure_filename(file_.filename)
             file_.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             clean_meta_data(filename)
-
             return redirect(
                 url_for(
                     'download_file',
