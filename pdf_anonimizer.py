@@ -39,13 +39,6 @@ def validate_files(file_list):
 
 def clean_meta_data(input_filename):
     output = PdfFileWriter()
-    info_dict = output._info.getObject()
-    info_dict.update({
-        NameObject('/Title'): createStringObject(u''),
-        NameObject('/Author'): createStringObject(u''),
-        NameObject('/Subject'): createStringObject(u''),
-        NameObject('/Creator'): createStringObject(u'')
-    })
     input_ = PdfFileReader(open(os.path.join(app.config['UPLOAD_FOLDER'],
                                              input_filename)))
     for page in range(input_.getNumPages()):
@@ -60,9 +53,11 @@ def clean_meta_data(input_filename):
     output_stream.close()
 
 
-def assure_that_filename_is_pdf(filename):
-    if not filename.endswith('.pdf'):
-        return filename + '.pdf'
+def make_secure_filename(filename, extension=".pdf"):
+    filename = secure_filename(filename)
+    filename = filename.replace('.', '_')
+    if not filename.endswith(extension):
+        filename += extension
     return filename
 
 
@@ -78,7 +73,7 @@ def upload_file():
             return redirect(url_for("upload_file"))
         if len(uploaded_files) == 1:
             if request.form.get('filename'):
-                filename = secure_filename(request.form['filename'])
+                filename = make_secure_filename(request.form['filename'])
             else:
                 filename = secure_filename(uploaded_files[0].filename)
             uploaded_files[0].save(os.path.join(app.config['UPLOAD_FOLDER'],
@@ -92,7 +87,8 @@ def upload_file():
                                                 uploaded_file.filename))
                 clean_meta_data(uploaded_file.filename)
             if request.form.get('filename'):
-                arch_name = request.form['filename'] + '.zip'
+                arch_name = make_secure_filename(request.form['filename'],
+                                                 extension=".zip")
             else:
                 arch_name = "pdf_files.zip"
             zip_arch = zipfile.ZipFile(
