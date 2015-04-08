@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import os
 from flask import Flask, request, redirect, render_template, flash, url_for, \
-    send_from_directory, make_response, send_file
+    send_from_directory, make_response
 from werkzeug import secure_filename
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -64,12 +66,8 @@ def upload_file():
                 filename = secure_filename(file_.filename)
             file_.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             clean_meta_data(filename)
-            return redirect(
-                url_for(
-                    'download_file_from_uploads',
-                    filename=filename
-                )
-            )
+            return redirect(url_for('download_file_from_uploads',
+                                    filename=filename))
         else:
             flash('Niepoprawny plik', 'danger')
             return redirect(url_for('upload_file'))
@@ -79,16 +77,17 @@ def upload_file():
 @app.route('/uploads/<path:filename>')
 def download_file_from_uploads(filename):
     uploads = app.config['UPLOAD_FOLDER']
-    response =  send_from_directory(directory=uploads, filename=filename,  as_attachment=True)
+    response = send_from_directory(directory=uploads, filename=filename,
+                                   as_attachment=True)
     os.remove(os.path.join(uploads, filename))
     return response
 
 
 @app.route('/download/<filename>')
 def download_file_making_raw_response(filename):
-    u'''
+    u"""
     View not used for now
-    '''
+    """
     file_ = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     raw_bytes = ''
     with open(file_, 'rb') as pdf:
@@ -96,7 +95,8 @@ def download_file_making_raw_response(filename):
             raw_bytes += line
     response = make_response(raw_bytes)
     response.headers['Content-Type'] = "application/octet-stream"
-    response.headers['Content-Disposition'] = "as_attachment; filename=" + filename
+    response.headers['Content-Disposition'] = "as_attachment; filename=" \
+                                              + filename
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return response
 

@@ -14,24 +14,26 @@
                 {{ message }}
             </div>
         {% endfor %}
-        <div class="col-md-10 col-md-offset-1 jumbotron">
-            {% block content %}
-            <h1>Anonimizacja plików .pdf</h1>
-            <p class="lead">Załaduj plik .pdf przez formularz, by usunąć metadane</p>
-            <div class="col-md-6">
-                <form method="POST" enctype=multipart/form-data>
-                    <div class="form-group">
-                        <label for="input-file_1">Plik .pdf</label>
-                        <input type="file" name="file_1" id="input-file_1" />
-                    </div>
-                    <div class="form-group">
-                        <label for="filename_1">Nazwa pliku wyjściowego (opcjonalne)</label>
-                        <input type="text" class="form-control" id="filename_1" name="filename_1" />
-                    </div>
-                    <button type="submit" class="btn btn-success">Zatwierdź</button>
-                </form>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1 jumbotron">
+                {% block content %}
+                <h1>Anonimizacja plików .pdf</h1>
+                <p class="lead">Załaduj plik .pdf przez formularz, by usunąć metadane</p>
+                <div class="col-md-6">
+                    <form method="POST" enctype=multipart/form-data>
+                        <div class="form-group">
+                            <label for="input-file_1">Plik .pdf</label>
+                            <input type="file" name="file_1" id="input-file_1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="filename_1">Nazwa pliku wyjściowego (opcjonalne)</label>
+                            <input type="text" class="form-control" id="filename_1" name="filename_1" />
+                        </div>
+                        <button type="submit" class="btn btn-success">Zatwierdź</button>
+                    </form>
+                </div>
+                {% endblock %}
             </div>
-            {% endblock %}
         </div>
     </div>
     <!-- Latest compiled and minified JavaScript -->
