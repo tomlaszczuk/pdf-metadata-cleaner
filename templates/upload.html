@@ -20,14 +20,14 @@
                 <h1>Anonimizacja plików .pdf</h1>
                 <p class="lead">Załaduj plik .pdf przez formularz, by usunąć metadane</p>
                 <div class="col-md-6">
-                    <form method="POST" enctype=multipart/form-data>
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="input-file_1">Plik .pdf</label>
-                            <input type="file" name="file_1" id="input-file_1" />
+                            <label for="input-files">Plik .pdf</label>
+                            <input type="file" multiple="" name="files" id="input-files" />
                         </div>
                         <div class="form-group">
-                            <label for="filename_1">Nazwa pliku wyjściowego (opcjonalne)</label>
-                            <input type="text" class="form-control" id="filename_1" name="filename_1" />
+                            <label for="filename">Nazwa pliku wyjściowego (opcjonalne)</label>
+                            <input type="text" class="form-control" id="filename" name="filename" />
                         </div>
                         <button type="submit" class="btn btn-success">Zatwierdź</button>
                     </form>
