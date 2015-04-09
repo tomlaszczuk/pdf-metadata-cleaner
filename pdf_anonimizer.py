@@ -7,7 +7,6 @@ from flask import Flask, request, redirect, render_template, flash, url_for, \
 from werkzeug import secure_filename
 
 from pyPdf import PdfFileWriter, PdfFileReader
-from pyPdf.generic import NameObject, createStringObject
 
 
 app = Flask(__name__)
@@ -29,7 +28,10 @@ def allowed_file(filename):
 def validate_files(file_list):
     flag = True
     for uploaded_file in file_list:
-        if not allowed_file(uploaded_file.filename):
+        if not uploaded_file.filename:
+            flash(u"Nie wskazano pliku", "danger")
+            flag = False
+        elif not allowed_file(uploaded_file.filename):
             flash("Plik %s jest niepoprawny (czy to plik pdf?)"
                   % uploaded_file.filename,
                   "danger")
@@ -68,9 +70,6 @@ def upload_file():
         if not validate_files(uploaded_files):
             flash(u"Spróbuj jeszcze raz", "info")
             return redirect(url_for('upload_file'))
-        if not uploaded_files:
-            flash(u"Nie wskazano żadnych plików", "warning")
-            return redirect(url_for("upload_file"))
         if len(uploaded_files) == 1:
             if request.form.get('filename'):
                 filename = make_secure_filename(request.form['filename'])
