@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, render_template, flash, url_for, \
     send_from_directory, make_response
 from werkzeug import secure_filename
 
-from pyPdf import PdfFileWriter, PdfFileReader
+from pyPdf import PdfFileWriter, PdfFileReader, utils
 
 
 app = Flask(__name__)
@@ -25,18 +25,38 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 
+def save_file(file_obj, filename):
+    file_obj.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
+def remove_file(filename):
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
 def validate_files(file_list):
-    flag = True
+    """
+    If file passes validation it is saved on upload dir
+    """
     for uploaded_file in file_list:
         if not uploaded_file.filename:
             flash(u"Nie wskazano pliku", "danger")
-            flag = False
+            return False
         elif not allowed_file(uploaded_file.filename):
-            flash("Plik %s jest niepoprawny (czy to plik pdf?)"
+            flash(u"Plik %s jest niepoprawny (musi być z rozszerzeniem .pdf)"
                   % uploaded_file.filename,
                   "danger")
-            flag = False
-    return flag
+            return False
+        save_file(uploaded_file, uploaded_file.filename)
+        try:
+            PdfFileReader(open(os.path.join(app.config['UPLOAD_FOLDER'],
+                                            uploaded_file.filename)))
+        except utils.PdfReadError:
+            flash("Plik %s wcale nie jest plikiem .pdf"
+                  % uploaded_file.filename,
+                  "danger")
+            remove_file(uploaded_file.filename)
+            return False
+    return True
 
 
 def clean_meta_data(input_filename):
@@ -70,28 +90,20 @@ def upload_file():
         if not validate_files(uploaded_files):
             flash(u"Spróbuj jeszcze raz", "info")
             return redirect(url_for('upload_file'))
-        if len(uploaded_files) == 1:
-            if request.form.get('filename'):
-                filename = make_secure_filename(request.form['filename'])
-            else:
-                filename = secure_filename(uploaded_files[0].filename)
-            uploaded_files[0].save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                                filename))
-            clean_meta_data(filename)
-            return redirect(url_for('download_file_from_uploads',
-                                    filename=filename))
+        for uploaded_file in uploaded_files:
+            clean_meta_data(uploaded_file.filename)
+        print "uploaded files to %d" % len(uploaded_files)
+        extension = ".pdf" if len(uploaded_files) == 1 else ".zip"
+        if request.form.get('filename'):
+            output_name = make_secure_filename(request.form['filename'],
+                                               extension=extension)
         else:
-            for uploaded_file in uploaded_files:
-                uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                                uploaded_file.filename))
-                clean_meta_data(uploaded_file.filename)
-            if request.form.get('filename'):
-                arch_name = make_secure_filename(request.form['filename'],
-                                                 extension=".zip")
-            else:
-                arch_name = "pdf_files.zip"
+            output_name = "pdf_files.zip" if extension == '.zip' \
+                else uploaded_files[0].filename
+        print output_name
+        if extension == ".zip":
             zip_arch = zipfile.ZipFile(
-                os.path.join(app.config['UPLOAD_FOLDER'], arch_name), "w"
+                os.path.join(app.config['UPLOAD_FOLDER'], output_name), "w"
             )
             for uploaded_file in uploaded_files:
                 zip_arch.write(os.path.join(app.config['UPLOAD_FOLDER'],
@@ -100,8 +112,15 @@ def upload_file():
                 os.remove(os.path.join(app.config['UPLOAD_FOLDER'],
                                        uploaded_file.filename))
             zip_arch.close()
-            return redirect(url_for('download_file_from_uploads',
-                                    filename=arch_name))
+        else:
+            os.rename(
+                os.path.join(app.config['UPLOAD_FOLDER'],
+                             uploaded_files[0].filename),
+                os.path.join(app.config['UPLOAD_FOLDER'],
+                             output_name)
+            )
+        return redirect(url_for('download_file_from_uploads',
+                                filename=output_name))
     return render_template("upload.html")
 
 
