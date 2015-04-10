@@ -92,7 +92,6 @@ def upload_file():
             return redirect(url_for('upload_file'))
         for uploaded_file in uploaded_files:
             clean_meta_data(uploaded_file.filename)
-        print "uploaded files to %d" % len(uploaded_files)
         extension = ".pdf" if len(uploaded_files) == 1 else ".zip"
         if request.form.get('filename'):
             output_name = make_secure_filename(request.form['filename'],
@@ -100,7 +99,6 @@ def upload_file():
         else:
             output_name = "pdf_files.zip" if extension == '.zip' \
                 else uploaded_files[0].filename
-        print output_name
         if extension == ".zip":
             zip_arch = zipfile.ZipFile(
                 os.path.join(app.config['UPLOAD_FOLDER'], output_name), "w"
