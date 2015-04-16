@@ -12,11 +12,8 @@ from pyPdf import PdfFileWriter, PdfFileReader, utils
 app = Flask(__name__)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-ALLOWED_EXTENSIONS = ['pdf']
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
+app.config['ALLOWED_EXTENSIONS'] = ['pdf']
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'Secret'
 
 
@@ -50,7 +47,7 @@ def validate_files(file_list):
         try:
             PdfFileReader(open(os.path.join(app.config['UPLOAD_FOLDER'],
                                             uploaded_file.filename)))
-        except utils.PdfReadError:
+        except:
             flash("Plik %s wcale nie jest plikiem .pdf"
                   % uploaded_file.filename,
                   "danger")
@@ -77,7 +74,6 @@ def clean_meta_data(input_filename):
 
 def make_secure_filename(filename, extension=".pdf"):
     filename = secure_filename(filename)
-    filename = filename.replace('.', '_')
     if not filename.endswith(extension):
         filename += extension
     return filename
@@ -98,7 +94,7 @@ def upload_file():
                                                extension=extension)
         else:
             output_name = "pdf_files.zip" if extension == '.zip' \
-                else uploaded_files[0].filename
+                else make_secure_filename(uploaded_files[0].filename)
         if extension == ".zip":
             zip_arch = zipfile.ZipFile(
                 os.path.join(app.config['UPLOAD_FOLDER'], output_name), "w"
